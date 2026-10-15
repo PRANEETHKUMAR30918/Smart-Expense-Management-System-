@@ -37,4 +37,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Object[]> findMonthlyTrend(@Param("userId") Long userId, @Param("fromDate") LocalDate fromDate);
 
     Page<Expense> findByUserIdAndCategoryOrderByDateDesc(Long userId, String category, Pageable pageable);
+
+    @Query("SELECT e FROM Expense e WHERE e.user.id = :userId " +
+           "AND (:category IS NULL OR :category = '' OR e.category = :category) " +
+           "AND (:search IS NULL OR :search = '' OR LOWER(e.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(e.description) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY e.date DESC")
+    Page<Expense> searchExpenses(
+            @Param("userId") Long userId,
+            @Param("category") String category,
+            @Param("search") String search,
+            Pageable pageable);
 }

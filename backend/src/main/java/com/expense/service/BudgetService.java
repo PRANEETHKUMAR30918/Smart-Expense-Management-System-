@@ -51,7 +51,7 @@ public class BudgetService {
         User user = getCurrentUser();
         Budget budget = budgetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Budget not found"));
-        if (!budget.getUser().getId().equals(user.getId())) throw new RuntimeException("Unauthorized");
+        if (!budget.getUser().getId().equals(user.getId())) throw new com.expense.exception.UnauthorizedAccessException("Unauthorized");
         budget.setCategory(dto.getCategory());
         budget.setLimitAmount(dto.getLimitAmount());
         budget.setMonth(dto.getMonth());
@@ -63,7 +63,7 @@ public class BudgetService {
         User user = getCurrentUser();
         Budget budget = budgetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Budget not found"));
-        if (!budget.getUser().getId().equals(user.getId())) throw new RuntimeException("Unauthorized");
+        if (!budget.getUser().getId().equals(user.getId())) throw new com.expense.exception.UnauthorizedAccessException("Unauthorized");
         budgetRepository.delete(budget);
     }
 

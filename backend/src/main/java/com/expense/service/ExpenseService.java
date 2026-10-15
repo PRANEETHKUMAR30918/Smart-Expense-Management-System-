@@ -2,6 +2,7 @@ package com.expense.service;
 
 import com.expense.dto.ExpenseDTO;
 import com.expense.exception.ResourceNotFoundException;
+import com.expense.exception.UnauthorizedAccessException;
 import com.expense.model.Expense;
 import com.expense.model.User;
 import com.expense.repository.ExpenseRepository;
@@ -36,6 +37,16 @@ public class ExpenseService {
                 .map(this::toDTO);
     }
 
+    public Page<ExpenseDTO> searchExpenses(int page, int size, String category, String search) {
+        if ((category == null || category.isBlank()) && (search == null || search.isBlank())) {
+            return getAllExpenses(page, size);
+        }
+        User user = getCurrentUser();
+        Pageable pageable = PageRequest.of(page, size);
+        return expenseRepository.searchExpenses(user.getId(), category, search, pageable)
+                .map(this::toDTO);
+    }
+
     public ExpenseDTO createExpense(ExpenseDTO dto) {
         User user = getCurrentUser();
         Expense expense = Expense.builder()
@@ -55,7 +66,7 @@ public class ExpenseService {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnauthorizedAccessException("Unauthorized");
         }
         expense.setTitle(dto.getTitle());
         expense.setAmount(dto.getAmount());
@@ -71,7 +82,7 @@ public class ExpenseService {
         Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
         if (!expense.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnauthorizedAccessException("Unauthorized");
         }
         expenseRepository.delete(expense);
     }

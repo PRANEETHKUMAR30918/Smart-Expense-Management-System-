@@ -26,12 +26,12 @@ public class BudgetController {
     }
 
     @PostMapping
-    public ResponseEntity<BudgetDTO> create(@RequestBody BudgetDTO dto) {
+    public ResponseEntity<BudgetDTO> create(@jakarta.validation.Valid @RequestBody BudgetDTO dto) {
         return ResponseEntity.ok(budgetService.createBudget(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BudgetDTO> update(@PathVariable Long id, @RequestBody BudgetDTO dto) {
+    public ResponseEntity<BudgetDTO> update(@PathVariable Long id, @jakarta.validation.Valid @RequestBody BudgetDTO dto) {
         return ResponseEntity.ok(budgetService.updateBudget(id, dto));
     }
 

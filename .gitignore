@@ -1,0 +1,44 @@
+# Build output
+**/target/
+target/
+
+# Eclipse / STS
+**/.metadata/
+.metadata/
+**/.settings/
+.settings/
+**/.classpath
+.classpath
+**/.project
+.project
+**/.factorypath
+.factorypath
+**/.sts4-cache/
+.sts4-cache/
+**/.springBeans
+.springBeans
+
+# IntelliJ
+**/.idea/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Node / Frontend
+**/node_modules/
+node_modules/
+**/dist/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Files
+.DS_Store
+Thumbs.db

@@ -20,8 +20,10 @@ public class ExpenseController {
     @GetMapping
     public ResponseEntity<Page<ExpenseDTO>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(expenseService.getAllExpenses(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(expenseService.searchExpenses(page, size, category, search));
     }
 
     @PostMapping

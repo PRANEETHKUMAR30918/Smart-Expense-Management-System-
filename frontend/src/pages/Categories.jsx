@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { categoryService } from '../services/categoryService'
+import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 
 const PRESET_COLORS = ['#10b981','#3b82f6','#ec4899','#8b5cf6','#ef4444','#f59e0b','#06b6d4','#6366f1','#64748b','#f97316']
 const PRESET_ICONS = ['🍔','🚗','🛍️','🎬','💊','📚','📄','📦','✈️','🏠','💡','🎮','👔','💆','🐾']
 
 export default function Categories() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'ADMIN'
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -64,9 +67,9 @@ export default function Categories() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Categories</h1>
-          <p className="page-subtitle">Manage your expense categories</p>
+          <p className="page-subtitle">{isAdmin ? 'Manage expense categories (Admin)' : 'System expense categories'}</p>
         </div>
-        <button className="btn btn-primary" onClick={openCreate}>+ Add Category</button>
+        {isAdmin && <button className="btn btn-primary" onClick={openCreate}>+ Add Category</button>}
       </div>
 
       {loading ? (
@@ -90,10 +93,12 @@ export default function Categories() {
               </div>
               <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{cat.name}</div>
               <div style={{ width: 24, height: 4, borderRadius: 2, background: cat.color || '#6366f1' }} />
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-secondary btn-sm" onClick={() => openEdit(cat)}>✏️</button>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(cat.id)}>🗑️</button>
-              </div>
+              {isAdmin && (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn btn-secondary btn-sm" onClick={() => openEdit(cat)}>✏️</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(cat.id)}>🗑️</button>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -30,17 +30,23 @@ export default function Expenses() {
     description: '', paymentMethod: 'UPI'
   })
 
-  const loadExpenses = useCallback(async (page = 0) => {
+  const loadExpenses = useCallback(async (page = 0, cat = filterCat, query = search) => {
     setLoading(true)
     try {
-      const res = await expenseService.getAll(page, 10)
+      const res = await expenseService.getAll(page, 10, cat, query)
       setData(res)
     } catch { toast.error('Failed to load expenses') }
     finally { setLoading(false) }
-  }, [])
+  }, [filterCat, search])
 
   useEffect(() => {
-    loadExpenses()
+    const timer = setTimeout(() => {
+      loadExpenses(0, filterCat, search)
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [filterCat, search, loadExpenses])
+
+  useEffect(() => {
     categoryService.getAll().then(cats => {
       if (cats.length > 0) setCategories(cats.map(c => c.name))
     }).catch(() => {})
@@ -85,10 +91,7 @@ export default function Expenses() {
     } catch { toast.error('Delete failed') }
   }
 
-  const filtered = (data.content || []).filter(e =>
-    (filterCat === '' || e.category === filterCat) &&
-    (search === '' || e.title.toLowerCase().includes(search.toLowerCase()))
-  )
+  const items = data.content || []
 
   const fmt = (n) => '₹' + Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 
@@ -97,7 +100,7 @@ export default function Expenses() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Expenses</h1>
-          <p className="page-subtitle">{data.content?.length || 0} transactions tracked</p>
+          <p className="page-subtitle">{(data.totalElements !== undefined ? data.totalElements : items.length)} transactions tracked</p>
         </div>
         <button id="add-expense-btn" className="btn btn-primary" onClick={openCreate}>+ Add Expense</button>
       </div>
@@ -116,7 +119,7 @@ export default function Expenses() {
       <div className="glass-card table-container">
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center' }}><div className="spinner" style={{ width: 32, height: 32, margin: '0 auto' }} /></div>
-        ) : filtered.length === 0 ? (
+        ) : items.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">💸</div>
             <h3>No expenses found</h3>
@@ -135,7 +138,7 @@ export default function Expenses() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(exp => (
+              {items.map(exp => (
                 <tr key={exp.id}>
                   <td>
                     <div style={{ fontWeight: 500 }}>{exp.title}</div>

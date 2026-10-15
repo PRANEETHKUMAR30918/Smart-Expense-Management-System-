@@ -24,11 +24,20 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     @Query("SELECT e.category, SUM(e.amount) FROM Expense e WHERE e.user.id = :userId AND MONTH(e.date) = :month AND YEAR(e.date) = :year GROUP BY e.category")
     List<Object[]> findCategoryWiseTotalByMonth(@Param("userId") Long userId, @Param("month") int month, @Param("year") int year);
 
+    @Query("SELECT e.category, SUM(e.amount) FROM Expense e WHERE e.user.id = :userId AND e.date >= :startDate AND e.date < :endDate GROUP BY e.category")
+    List<Object[]> findCategoryWiseTotalByDateRange(@Param("userId") Long userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = :userId AND MONTH(e.date) = :month AND YEAR(e.date) = :year")
     BigDecimal findTotalByMonth(@Param("userId") Long userId, @Param("month") int month, @Param("year") int year);
 
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = :userId AND e.date >= :startDate AND e.date < :endDate")
+    BigDecimal findTotalByDateRange(@Param("userId") Long userId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = :userId AND e.category = :category AND MONTH(e.date) = :month AND YEAR(e.date) = :year")
     BigDecimal findTotalByCategoryAndMonth(@Param("userId") Long userId, @Param("category") String category, @Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = :userId AND e.category = :category AND e.date >= :startDate AND e.date < :endDate")
+    BigDecimal findTotalByCategoryAndDateRange(@Param("userId") Long userId, @Param("category") String category, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     @Query("SELECT COUNT(e) FROM Expense e WHERE e.user.id = :userId")
     long countByUserId(@Param("userId") Long userId);

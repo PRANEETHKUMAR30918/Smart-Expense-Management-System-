@@ -38,10 +38,9 @@ A personal financial management and budgeting platform featuring a **Spring Boot
 ## 🔒 Security & Data Invariants
 
 1. **User Scoping & IDOR Prevention**: Every expense and budget mutation strictly validates entity ownership against the authenticated JWT principal. Any attempt to read or modify another user's record triggers `UnauthorizedAccessException`, returning `403 Forbidden`.
-2. **Budget & Expense Validation**: 
-   - `ExpenseDTO`: Required title, positive amounts (`@Positive`), and valid dates.
-   - `BudgetDTO`: Requires positive budget thresholds (`@Positive`), and months bounded to `1..12`. Negative limits are rejected with `400 Bad Request`.
-3. **Database Indexing**: The `expenses` table utilizes a composite index on `(user_id, date)` to accelerate monthly and trend aggregations.
+2. **Category Administration & Integrity**: Shared category mutation (`POST`, `PUT`, `DELETE`) is restricted to users with `ROLE_ADMIN` via Spring Security `@PreAuthorize`, preventing users from tampering with shared metadata. Category models validate non-blank names with length constraints.
+3. **Server-Side Search & Multi-Page Filtering**: Expense querying supports server-side pagination with dynamic search terms and category criteria (`searchExpenses` query), allowing complete dataset searching rather than client-only page slicing.
+4. **Database Indexing & Sargable Date Predicates**: The `expenses` table utilizes a composite index on `(user_id, date)` with date-range predicates (`date >= :start AND date < :end`) to accelerate monthly and trend aggregations without breaking index usability.
 
 ---
 
@@ -98,6 +97,5 @@ cd backend
 
 ## ⚖️ Known Limitations & Trade-offs
 
-- **Category Multi-Tenancy**: Categories are currently shared across all users. Custom user-defined category creation with tenant isolation is a roadmap item.
-- **Client-Side Filter vs Server-Side Search**: The frontend search filter currently filters the active page view. Large data volume requires full server-side query criteria (`title LIKE :query` with pagination).
-- **Stateless Revocation**: JWT tokens remain valid for 24 hours without distributed revocation (e.g. Redis blocklist on logout).
+- **Stateless Revocation**: JWT tokens remain valid for 24 hours without distributed revocation (e.g., Redis blocklist on explicit logout).
+- **Scheduled Budget Reset**: Monthly budgets are queried per calendar month; automatic recurring budget templates across calendar rollovers can be added via Spring `@Scheduled`.
